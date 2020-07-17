@@ -3,7 +3,7 @@
 echo $#  '生成中文数据集'
 if [ $# -ne 3 ]
 then
-    echo "Usage: $0 'demo.txt'  0.2   output"
+    echo "Usage: $0 'demo.txt'  0.2   ../output/"
     exit
 fi
 
