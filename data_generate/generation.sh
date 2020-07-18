@@ -51,12 +51,16 @@ fi
  
 trdg \
 -c $train_count -l cn -i ${BASE_DIR}'train.txt' -na 2 \
---output_dir ${BASE_DIR}"images/train" -ft "./font/test01.ttf"
+-rk \
+-rbl \
+--output_dir ${BASE_DIR}"images/train" -fd "./font/"
 
 
 trdg \
 -c $val_count -l cn -i ${BASE_DIR}'valid.txt' -na 2 \
---output_dir ${BASE_DIR}"images/valid" -ft "./font/test01.ttf"
+-rk \
+-rbl \
+--output_dir ${BASE_DIR}"images/valid" -fd "./font/"
 
 
 #head -n 20 ${BASE_DIR}"image_list_valid.txt"  > ${BASE_DIR}'image_list_test.txt'

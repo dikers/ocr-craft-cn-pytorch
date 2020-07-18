@@ -122,6 +122,8 @@ def combined_line(output_dir,
 
     output_file = os.path.join(output_dir, 'text_split.txt')
 
+    
+    random.shuffle(new_lines)
     with open(output_file, 'w',  encoding='utf-8') as f:
         for new_line in new_lines:
 

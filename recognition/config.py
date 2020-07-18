@@ -7,7 +7,7 @@ import glob
 def get_key_from_file_list(file_list):
     #file_list = glob.glob(os.path.join(input_dir, '*.txt'))
 
-    #print('get_key_from_file_list() input_dir : ', input_dir)
+    print('get_key_from_file_list() file_list : ', file_list)
 
     content = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-~`<>'.:;^/|!?$%#@&*()[]{}_+=,\\\""
     for file_name in file_list:
