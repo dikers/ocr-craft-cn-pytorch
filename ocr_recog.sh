@@ -2,7 +2,7 @@
 export PYTHONPATH=./
 
 CUDA_VISIBLE_DEVICES=0
-python3 demo.py  \
+python3 ocr_recog.py  \
 -i 'temp/sample/' \
 -o 'temp/sample_result' \
 --cuda==False  \
