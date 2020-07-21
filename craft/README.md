@@ -104,3 +104,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ```
+
+
+
+```
+python3 test.py --test_folder=/home/ec2-user/datasets/ocr_image_02 --cuda==False
+python3 label_parser.py  -i ./output/ -o ../output
+
+```

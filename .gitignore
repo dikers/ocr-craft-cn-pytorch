@@ -26,7 +26,11 @@ __pycache__/
 */__pycache__
 /dataset/*
 */dataset/*
+*/datasets/
+/datasets/*
 /models/
+*/output/
+
 */models
 /target/
 /.idea/*
