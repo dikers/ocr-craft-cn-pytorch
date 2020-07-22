@@ -3,10 +3,10 @@ import uuid
 import cv2
 import os
 
-class OCRConver:
-    def __init__(self,file_name_source, file_name_dest, image_file):
-        self.file_source=file_name_source
+class ConverToTextract:
+    def __init__(self, file_name_dest, image_file, lines):
         self.file_dest=file_name_dest
+        self.lines = lines
         
         
         image = cv2.imread(image_file)
@@ -18,19 +18,9 @@ class OCRConver:
         self.width=w
         self.height=h
 
-    def __loadSource(self):
-        with open(self.file_source, 'r') as file:
-            lines = file.readlines()
-            
-        return lines
-
-
     def __write_result(self,result):
         with open(self.file_dest, 'w', encoding='utf-8') as file:
             file.write(json.dumps(result))
-
-
-        
             
             
     def convert(self):
@@ -42,16 +32,17 @@ class OCRConver:
                                    "Polygon": [{"X": 0.0, "Y": 0.0}, {"X": 1.0, "Y": 0.0}, {"X": 1.0, "Y": 1.0},
                                                {"X": 0.0, "Y": 1.0}]}, "Id": str(uuid.uuid4())}
 
-        lines = self.__loadSource()
+        lines = self.lines
 
         ids = []
         result["Blocks"] = [block_page]
         for line in lines:
+            line = line.replace("\n", '')
             items = line.split(',')
             
             block_word = {"BlockType": "WORD"}
-            block_word["Confidence"] = 99.96
-            block_word["Text"] = ','.join(items[8:])
+            block_word["Confidence"] = items[8:]
+            block_word["Text"] = ','.join(items[9:])
             BoundingBox = {"Width": float(int(items[2]) - int(items[0]))  / width, 
                            "Height": float(int(items[7]) - int(items[1])),
                            "Left": float(items[0]) / width, 
@@ -76,5 +67,6 @@ class OCRConver:
 
 
 if __name__ == "__main__":
-    convert=OCRConver('/home/ec2-user/tfc/031_ocr/ocr-craft-cn-pytorch/temp/output/demo001.txt','temp.json', '/home/ec2-user/tfc/031_ocr/ocr-craft-cn-pytorch/temp/output/demo001.jpg' )
-    convert.convert()
+    #convert=OCRConver('/home/ec2-user/tfc/031_ocr/ocr-craft-cn-pytorch/temp/output/demo001.txt','temp.json', '/home/ec2-user/tfc/031_ocr/ocr-craft-cn-pytorch/temp/output/demo001.jpg' )
+    #convert.convert()
+    print("main")

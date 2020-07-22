@@ -15,7 +15,11 @@ def test_recong(opt, model, demo_loader, converter, device):
     
     
     with torch.no_grad():
+        
+        
+        results = [] 
         for image_tensors, image_path_list in demo_loader:
+            print("==========================================   demo_loader    ")
             batch_size = image_tensors.size(0)
             image = image_tensors.to(device)
             # For max length prediction
@@ -57,5 +61,9 @@ def test_recong(opt, model, demo_loader, converter, device):
                 confidence_score = pred_max_prob.cumprod(dim=0)[-1]
 
                 print(f'{img_name:25s}\t{pred:25s}\t{confidence_score:0.4f}')
-
+                results.append((img_name, pred, confidence_score))
+                
+                
+                
+    return results
  

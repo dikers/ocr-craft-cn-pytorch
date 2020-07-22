@@ -25,6 +25,8 @@ from recognition.config import get_key_from_file_list
 from recognition.utils import CTCLabelConverter, AttnLabelConverter
 from recognition.model import Model
 from recognition.dataset import RawCV2Dataset, RawDataset, AlignCollate
+from recognition.textract import ConverToTextract
+
 
 
 DEBUG = True
@@ -137,7 +139,7 @@ class OcrMain(object):
             
             
             self.image_files.append(image_file)
-        print("共有{}个图片".format(len(files_grabbed)))
+        print("共有{}张图片".format(len(files_grabbed)))
         
     
     def init_craft_net(self):
@@ -223,7 +225,7 @@ class OcrMain(object):
             else:
                 print("【Error】 图片文件 没有生成对应的label文件".format(image_file, label_file))
 
-        print("共解析{}个图片文件个".format(len(self.image_files)))
+        print("共解析{}个图片文件".format(len(self.image_files)))
 
 
 
@@ -278,14 +280,22 @@ class OcrMain(object):
             num_workers=int(self.args.workers),
             collate_fn=self.AlignCollate_demo, pin_memory=True)    
             
-        test_recong(self.args, self.model, demo_loader,self.converter, device)    
+        results = test_recong(self.args, self.model, demo_loader,self.converter, device)    
         #label_image_file = os.path.join(sub_image_dir, 'image_label.'+image_file.split('.')[-1])
         #cv2.imwrite(label_image_file, save_img)
-        #print('【输出】生成合格后的图片{} .'.format(label_image_file))
+        #
 
-
+        #file_name_dest, image_file, lines
+        new_lines = []
+        #print("line length:  {}   result length: {} ".format(len(lines), len(results)))
+        for line, result in zip(lines, results) :
+            new_line = '{},{:.4f},{}\n'.format(line.replace("\n", ''), float(result[2]), result[1] )
+            new_lines.append(new_line)
         
-        
+        file_name_dest = os.path.join(self.output_dir, label_file.split('/')[-1].split('.')[0] + '.json' )
+        converToTextract = ConverToTextract( file_name_dest, image_file, new_lines)
+        converToTextract.convert()
+        print('【输出】生成json文件{} .'.format(file_name_dest))
         
 
     def main(self):
@@ -329,7 +339,10 @@ class OcrMain(object):
         # step 5. 切分小图图片, 进行预测
         self.recongnize_image_file()
 
+        # step 6. 清理工作
         
+        #if not DEBUG:
+            
         
         
         time_elapsed = time.time() - time_start
