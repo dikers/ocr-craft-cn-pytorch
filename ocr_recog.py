@@ -29,8 +29,8 @@ from recognition.dataset import RawCV2Dataset, RawDataset, AlignCollate
 
 DEBUG = True
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-#device = torch.device('cpu')
+#device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device('cpu')
 
 def str2bool(v):
     return v.lower() in ("yes", "y", "true", "t", "1")
@@ -147,8 +147,12 @@ class OcrMain(object):
         # load model
         print('loading pretrained model from %s' % self.args.saved_model)
         print(" ---------------------------  device       ", device)
-        model.load_state_dict(torch.load(self.args.saved_model, map_location=device))
-
+        #model.load_state_dict(torch.load(self.args.saved_model, map_location=device))
+        model.load_state_dict(torch.load(self.args.saved_model, map_location=lambda storage, loc: storage))
+        model = model.to(device)
+        
+        
+        
         # prepare data. two demo images from https://github.com/bgshih/crnn#run-demo
         self.AlignCollate_demo = AlignCollate(imgH=self.args.imgH, imgW=self.args.imgW, keep_ratio_with_pad=self.args.PAD)
         

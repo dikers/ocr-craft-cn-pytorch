@@ -19,13 +19,13 @@ def test_recong(opt, model, demo_loader, converter, device):
         
         results = [] 
         for image_tensors, image_path_list in demo_loader:
-            print("==========================================   demo_loader    ")
+            print("==========================================   demo_loader  device   ",  device)
             batch_size = image_tensors.size(0)
             image = image_tensors.to(device)
             # For max length prediction
             length_for_pred = torch.IntTensor([opt.batch_max_length] * batch_size).to(device)
             text_for_pred = torch.LongTensor(batch_size, opt.batch_max_length + 1).fill_(0).to(device)
-
+           
             if 'CTC' in opt.Prediction:
                 preds = model(image, text_for_pred)
 
@@ -58,7 +58,9 @@ def test_recong(opt, model, demo_loader, converter, device):
                     pred_max_prob = pred_max_prob[:pred_EOS]
 
                 # calculate confidence score (= multiply of pred_max_prob)
-                confidence_score = pred_max_prob.cumprod(dim=0)[-1]
+                confidence_score = 0.0
+                if len(pred_max_prob.cumprod(dim=0)) > 0:
+                    confidence_score = pred_max_prob.cumprod(dim=0)[-1]
 
                 print(f'{img_name:25s}\t{pred:25s}\t{confidence_score:0.4f}')
                 results.append((img_name, pred, confidence_score))

@@ -91,7 +91,7 @@ class OcrMain(object):
         # recognition model 识别模型
         parser.add_argument('--image_folder', default='/home/ec2-user/tfc/031_ocr/ocr-craft-cn-pytorch/recognition/temp/',   help='path to image_folder which contains text images')
         parser.add_argument('--workers', type=int, help='number of data loading workers', default=4)
-        parser.add_argument('--batch_size', type=int, default=192, help='input batch size')
+        parser.add_argument('--batch_size', type=int, default=32, help='input batch size')
         parser.add_argument('--saved_model', required=True, help="path to saved_model to evaluation")
         """ Data processing """
         parser.add_argument('--batch_max_length', type=int, default=32, help='maximum-label-length')
@@ -185,6 +185,7 @@ class OcrMain(object):
         print('model input parameters', self.args.imgH, self.args.imgW, self.args.num_fiducial, self.args.input_channel, self.args.output_channel,
               self.args.hidden_size, self.args.num_class, self.args.batch_max_length, self.args.Transformation, self.args.FeatureExtraction,
               self.args.SequenceModeling, self.args.Prediction)
+        
         model = torch.nn.DataParallel(model).to(device)
 
         # load model
@@ -247,6 +248,7 @@ class OcrMain(object):
         save_img = cv2.imread(image_file)
 
         image_obj_list = []
+        
         for i, line in enumerate(lines):
             # Draw box around entire LINE
             points = line.replace("\n", '').split(',')
@@ -270,14 +272,24 @@ class OcrMain(object):
             #TODO: 把文字写到图片上
             #colors = (0, 0, 255)
             #cv2.rectangle(save_img, (left, top), (left+width, top+height), colors, 1)
-
-        #demo_data = RawCV2Dataset(image_obj_list=image_obj_list, opt=self.args)  # use RawDataset
-        demo_data = RawDataset(root=sub_image_dir, opt=self.args)
+        print("image_obj_list   start      length: ", len(image_obj_list))
+            
+        if len(image_obj_list) >  self.args.batch_size and  len(image_obj_list) % self.args.batch_size !=0:
+            print("---------------------------- 补齐  batch_size")
+            
+            for item in range(self.args.batch_size - len(image_obj_list) % self.args.batch_size):
+                image_obj_list.append(image_obj_list[-1])
+            
+        print("image_obj_list   end      length: ", len(image_obj_list))
+            
+        demo_data = RawCV2Dataset(image_obj_list=image_obj_list, opt=self.args)  # use RawDataset
+        #demo_data = RawDataset(root=sub_image_dir, opt=self.args)
         
         demo_loader = torch.utils.data.DataLoader(
             demo_data, batch_size=self.args.batch_size,
             shuffle=False,
             num_workers=int(self.args.workers),
+            drop_last = True,
             collate_fn=self.AlignCollate_demo, pin_memory=True)    
             
         results = test_recong(self.args, self.model, demo_loader,self.converter, device)    
@@ -288,6 +300,12 @@ class OcrMain(object):
         #file_name_dest, image_file, lines
         new_lines = []
         #print("line length:  {}   result length: {} ".format(len(lines), len(results)))
+        
+        if len(results) > len(lines):
+            results = results[0:len(lines)]
+            
+        print("results       length: ", len(results))
+        
         for line, result in zip(lines, results) :
             new_line = '{},{:.4f},{}\n'.format(line.replace("\n", ''), float(result[2]), result[1] )
             new_lines.append(new_line)
