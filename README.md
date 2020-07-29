@@ -90,4 +90,7 @@ python3 create_lmdb_dataset.py --inputPath /home/ec2-user/datasets/DataSet/image
 python3 create_lmdb_dataset.py --inputPath /home/ec2-user/datasets/DataSet/images --gtFile /home/ec2-user/datasets/DataSet/valid_label.txt --outputPath ../output/valid
 
 
+
+
+aws s3 cp temp/output/test012.json  s3://dikers-html/ocr_output/
 ```

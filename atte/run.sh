@@ -5,8 +5,8 @@ echo 'Train -------------------'
 python3 train.py \
 --train_data ../datasets/train \
 --valid_data ../datasets/valid \
---select_data 'MJ-ST-EN-19' \
---batch_ratio '0.65-0.1-0.15-0.1' \
+--select_data 'MJ-ST-EN-19-SP' \
+--batch_ratio '0.45-0.1-0.2-0.1-0.15' \
 --batch_size 180 \
 --valInterval 200 \
 --gpu_list '0,1,2,3' \

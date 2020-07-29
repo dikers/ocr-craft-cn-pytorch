@@ -20,6 +20,7 @@ from torch.autograd import Variable
 from craft.craft import CRAFT
 from craft.text_detection import text_detection 
 from craft.text_detection import copyStateDict
+from craft.merge_box import do_merge_box
 from recognition.recognition import test_recong
 from recognition.config import get_key_from_file_list
 from recognition.utils import CTCLabelConverter, AttnLabelConverter
@@ -244,6 +245,7 @@ class OcrMain(object):
         with open(label_file, 'r', encoding='utf-8') as f:
             for line in f:
                 lines.append(line)
+        lines = do_merge_box(lines)
 
         save_img = cv2.imread(image_file)
 
