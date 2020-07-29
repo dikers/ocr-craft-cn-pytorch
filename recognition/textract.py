@@ -41,7 +41,7 @@ class ConverToTextract:
             items = line.split(',')
             
             block_word = {"BlockType": "WORD"}
-            block_word["Confidence"] = items[8:]
+            block_word["Confidence"] = float(items[8])
             block_word["Text"] = ','.join(items[9:])
             BoundingBox = {"Width": float(int(items[2]) - int(items[0]))  / width, 
                            "Height": float(int(items[7]) - int(items[1])),

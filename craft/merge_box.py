@@ -10,6 +10,13 @@ def _box_to_line(box):
         box['left'],
         box['bottom'],)
 
+def _delete_row_in_list(new_lines, line):
+
+    for index, new_line in enumerate(new_lines):
+        if line == new_line:
+            new_lines.remove(line)
+            break
+
 
 def _do_merge_inline(new_lines):
 
@@ -55,7 +62,6 @@ def _do_merge_inline(new_lines):
             if box_map[_box_to_line(box_list[j])] or i == j:
                 continue
             if box_list[j]['width'] < 150 \
-                    and box_list[i]['width'] < 150 \
                     and abs(box_list[j]['left'] - box_list[i]['right']) < 9 \
                     and abs(box_list[j]['top'] - box_list[i]['top']) < 8 \
                     and abs(box_list[j]['bottom'] - box_list[i]['bottom']) < 8:
@@ -84,6 +90,8 @@ def _do_merge_inline(new_lines):
 
                 box_map[_box_to_line(box_list[i])] = True
                 box_map[_box_to_line(box_list[j])] = True
+                _delete_row_in_list(new_box_lines, _box_to_line(box_list[i]))
+                _delete_row_in_list(new_box_lines, _box_to_line(box_list[j]))
                 new_box_lines.append(_box_to_line(new_box))
                 merge_flag = True
 
