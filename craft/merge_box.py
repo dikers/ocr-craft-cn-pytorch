@@ -43,8 +43,6 @@ def _do_merge_inline(new_lines):
         box_list.append(box)
         box_map[_box_to_line(box)] = False
 
-    print("合并前Box 数量 : ", len(new_lines))
-    print("合并前Box 数量 : ", len(box_list))
     # for line in new_lines:
     #     print(line)
 
@@ -100,8 +98,8 @@ def _do_merge_inline(new_lines):
         if not merge_flag:
             new_box_lines.append(_box_to_line(box_list[i]))
 
-    print("合并了 {}个 box".format(total_count))
-    print("总共 {}个 box".format(len(new_box_lines)))
+    #print("合并了 {}个 box".format(total_count))
+    #print("总共 {}个 box".format(len(new_box_lines)))
     return new_box_lines, total_count
 
 

@@ -12,6 +12,7 @@ import json
 import glob
 import cv2
 import os
+from collections import OrderedDict
 
 import torch
 import torch.nn as nn
@@ -32,8 +33,8 @@ from recognition.textract import ConverToTextract
 
 DEBUG = True
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-#device = torch.device('cpu')
+#device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device('cpu')
 
 def str2bool(v):
     return v.lower() in ("yes", "y", "true", "t", "1")
@@ -92,7 +93,7 @@ class OcrMain(object):
         # recognition model 识别模型
         parser.add_argument('--image_folder', default='/home/ec2-user/tfc/031_ocr/ocr-craft-cn-pytorch/recognition/temp/',   help='path to image_folder which contains text images')
         parser.add_argument('--workers', type=int, help='number of data loading workers', default=4)
-        parser.add_argument('--batch_size', type=int, default=32, help='input batch size')
+        parser.add_argument('--batch_size', type=int, default=4, help='input batch size')
         parser.add_argument('--saved_model', required=True, help="path to saved_model to evaluation")
         """ Data processing """
         parser.add_argument('--batch_max_length', type=int, default=32, help='maximum-label-length')
@@ -187,16 +188,24 @@ class OcrMain(object):
               self.args.hidden_size, self.args.num_class, self.args.batch_max_length, self.args.Transformation, self.args.FeatureExtraction,
               self.args.SequenceModeling, self.args.Prediction)
         
-        model = torch.nn.DataParallel(model).to(device)
+        #model = torch.nn.DataParallel(model).to(device)
 
         # load model
-        print('loading pretrained model from %s' % self.args.saved_model)
-        print(" ---------------------------  device       ", device)
-        model.load_state_dict(torch.load(self.args.saved_model, map_location=device))
-
+        print('loading pretrained model from {}    device:{}'.format(self.args.saved_model, device))
+        
+        state_dict = torch.load(self.args.saved_model, map_location=lambda storage, loc: storage)
+        
+        new_state_dict = OrderedDict()
+        key_length = len('module.')
+        for k, v in state_dict.items():
+            name = k[key_length:] # remove `module.`
+            new_state_dict[name] = v
+        # load params
+        model.load_state_dict(new_state_dict)
+        model = model.to(device)
+        
         # prepare data. two demo images from https://github.com/bgshih/crnn#run-demo
         self.AlignCollate_demo = AlignCollate(imgH=self.args.imgH, imgW=self.args.imgW, keep_ratio_with_pad=self.args.PAD)
-        
         # predict
         model.eval()
         return model
@@ -254,10 +263,13 @@ class OcrMain(object):
         for i, line in enumerate(lines):
             # Draw box around entire LINE
             points = line.replace("\n", '').split(',')
-            left = int(points[0])
-            top = int(points[1])
-            width = int(points[2]) - int(points[0])
-            height = int(points[7]) - int(points[1])
+            left = int(points[0]) if int(points[6]) > int(points[0]) else int(points[6])
+            right = int(points[2]) if int(points[4]) < int(points[2]) else int(points[4])
+            top = int(points[1]) if int(points[3]) > int(points[1]) else int(points[3])
+            bottom = int(points[5]) if int(points[7]) < int(points[5]) else int(points[7])
+            height = bottom - top
+            width = right - left
+            
             c_img = save_img[top: int(top + height), left: int(left + width)]
             new_height = 32
             new_width = int(width * new_height / height)

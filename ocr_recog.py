@@ -12,6 +12,7 @@ import json
 import glob
 import cv2
 import os
+from collections import OrderedDict
 
 import torch
 import torch.nn as nn
@@ -121,14 +122,13 @@ class OcrMain(object):
         
         """ model configuration """
 
-        #FIXME: 生成 关键字列表， 后期可以优化， 把char 提取出来 ， 目前是遍历训练集的文本
         file_list = self.args.label_file_list.split(',')
         self.args.character = get_key_from_file_list(file_list)  
 
 
         cudnn.benchmark = True
         cudnn.deterministic = True
-        self.args.num_gpu = torch.cuda.device_count()
+        self.args.num_gpu = 0
 
         if 'CTC' in self.args.Prediction:
             self.converter = CTCLabelConverter(self.args.character)
@@ -142,20 +142,25 @@ class OcrMain(object):
         print('model input parameters', self.args.imgH, self.args.imgW, self.args.num_fiducial, self.args.input_channel, self.args.output_channel,
               self.args.hidden_size, self.args.num_class, self.args.batch_max_length, self.args.Transformation, self.args.FeatureExtraction,
               self.args.SequenceModeling, self.args.Prediction)
-        model = torch.nn.DataParallel(model).to(device)
+        
+        #model = torch.nn.DataParallel(model).to(device)
 
         # load model
-        print('loading pretrained model from %s' % self.args.saved_model)
-        print(" ---------------------------  device       ", device)
-        #model.load_state_dict(torch.load(self.args.saved_model, map_location=device))
-        model.load_state_dict(torch.load(self.args.saved_model, map_location=lambda storage, loc: storage))
+        print('loading pretrained model from {}    device:{}'.format(self.args.saved_model, device))
+        
+        state_dict = torch.load(self.args.saved_model, map_location=lambda storage, loc: storage)
+        
+        new_state_dict = OrderedDict()
+        key_length = len('module.')
+        for k, v in state_dict.items():
+            name = k[key_length:] # remove `module.`
+            new_state_dict[name] = v
+        # load params
+        model.load_state_dict(new_state_dict)
         model = model.to(device)
-        
-        
         
         # prepare data. two demo images from https://github.com/bgshih/crnn#run-demo
         self.AlignCollate_demo = AlignCollate(imgH=self.args.imgH, imgW=self.args.imgW, keep_ratio_with_pad=self.args.PAD)
-        
         # predict
         model.eval()
         return model
