@@ -98,9 +98,7 @@ def test_net(args, net, image, text_threshold, link_threshold, low_text, cuda, p
 
 
 def text_detection(args, net):
-    print('-' * 30)
-    print('detection')
-    print('-' * 30)
+    
     
     image_list, _, _ = craft.file_utils.get_files(args.input_dir)
     
@@ -128,19 +126,27 @@ def text_detection(args, net):
 
     t = time.time()
 
+    print('-' * 30)
+    print('文本区域检测  图片数量= {}'.format(len(image_list)))
+    print('-' * 30)
+    
     # load data
     for k, image_path in enumerate(image_list):
         
-        print("Test image {:d}/{:d}: {:s}".format(k+1, len(image_list), image_path), end='\r')
-        image = craft.imgproc.loadImage(image_path)
+        try:      
 
-        bboxes, polys, score_text = test_net(args, net, image, args.text_threshold, args.link_threshold, args.low_text, args.cuda, args.poly, refine_net)
+            print("Test image {:d}/{:d}: {:s}".format(k+1, len(image_list), image_path), end='\r')
+            image = craft.imgproc.loadImage(image_path)
 
-        # save score text
-        filename, file_ext = os.path.splitext(os.path.basename(image_path))
-        #mask_file = os.path.join(output_dir , filename + '_mask.jpg')
-        #cv2.imwrite(mask_file, score_text)
+            bboxes, polys, score_text = test_net(args, net, image, args.text_threshold, args.link_threshold, args.low_text, args.cuda, args.poly, refine_net)
 
-        craft.file_utils.saveResult(image_path, image[:,:,::-1], polys, dirname=output_dir, write_image=True)
+            # save score text
+            filename, file_ext = os.path.splitext(os.path.basename(image_path))
+            #mask_file = os.path.join(output_dir , filename + '_mask.jpg')
+            #cv2.imwrite(mask_file, score_text)
+
+            craft.file_utils.saveResult(image_path, image[:,:,::-1], polys, dirname=output_dir, write_image=True)
+        except Exception:
+            print("【Error】 图片[{}]  文本区域检测识别失败".format(image_path))
 
     print("elapsed time : {}s".format(time.time() - t))

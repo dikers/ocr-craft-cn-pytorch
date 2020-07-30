@@ -13,7 +13,7 @@ class ConverToTextract:
         size = image.shape
         w = size[1] #宽度
         h = size[0] #高度
-        print('{}   size = {}'.format(image_file, size))
+        #print('{}   size = {}'.format(image_file, size))
         
         self.width=w
         self.height=h

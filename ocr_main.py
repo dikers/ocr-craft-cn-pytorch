@@ -121,8 +121,9 @@ class OcrMain(object):
     def init_output_dir(self):
         
         """
+        初始化图片列表  self.image_files
         生成临时文件夹， 保存原始图片 和裁剪的图片, 生成json文件
-        FIXME: DEBUG 使用， 正式环境， 全部到内存中进行
+        FIXME: 正式环境， 全部到内存中进行
         :param input_dir:
         :param output_dir:
         :return:
@@ -141,13 +142,13 @@ class OcrMain(object):
             
             
             self.image_files.append(image_file)
-        print("共有{}张图片".format(len(files_grabbed)))
+        #print("初始化完成， 共有{}张图片".format(len(self.image_files)))
         
     
     def init_craft_net(self):
                 
         net = CRAFT()     # initialize
-        print('Loading weights from checkpoint (' + self.args.trained_model + ')')
+        print('CRAFT Loading weights from checkpoint (' + self.args.trained_model + ')')
         if self.args.cuda:
             net.load_state_dict(copyStateDict(torch.load(self.args.trained_model)))
         else:
@@ -166,7 +167,6 @@ class OcrMain(object):
         
         """ model configuration """
 
-        #FIXME: 生成 关键字列表， 后期可以优化， 把char 提取出来 ， 目前是遍历训练集的文本
         file_list = self.args.label_file_list.split(',')
         self.args.character = get_key_from_file_list(file_list)  
 
@@ -231,10 +231,15 @@ class OcrMain(object):
             label_file = os.path.join( self.output_dir, temp_name + '.txt')
             print("label_file ", label_file)
 
+            
             if os.path.exists(label_file):
-                self.recongnize_sub_image_file(image_file, label_file, sub_image_dir)
+                try:      
+                    self.recongnize_sub_image_file(image_file, label_file, sub_image_dir)
+                except Exception:
+                    print("【Error】 图片[{}]  没有解析成功 ".format(image_file))
+            
             else:
-                print("【Error】 图片文件 没有生成对应的label文件".format(image_file, label_file))
+                print("【Error】 图片[{}]  没有生成对应的label文件 [{}]".format(image_file, label_file))
 
         print("共解析{}个图片文件".format(len(self.image_files)))
 
@@ -279,18 +284,14 @@ class OcrMain(object):
             new_image_file = os.path.join( sub_image_dir,  str(i).zfill(6)+ '.jpg')
 
             #print("sub image: ", new_image_file)
-            cv2.imwrite(new_image_file, c_img)
-            #FIXME: 调用文本识别
+            if DEBUG:
+                cv2.imwrite(new_image_file, c_img)
             image_obj_list.append((new_image_file, c_img))
 
-            #TODO: 把文字写到图片上
-            #colors = (0, 0, 255)
-            #cv2.rectangle(save_img, (left, top), (left+width, top+height), colors, 1)
         print("image_obj_list   start      length: ", len(image_obj_list))
             
+        # 补齐  batch_size
         if len(image_obj_list) >  self.args.batch_size and  len(image_obj_list) % self.args.batch_size !=0:
-            print("---------------------------- 补齐  batch_size")
-            
             for item in range(self.args.batch_size - len(image_obj_list) % self.args.batch_size):
                 image_obj_list.append(image_obj_list[-1])
             
@@ -307,9 +308,6 @@ class OcrMain(object):
             collate_fn=self.AlignCollate_demo, pin_memory=False)    
             
         results = test_recong(self.args, self.model, demo_loader,self.converter, device)    
-        #label_image_file = os.path.join(sub_image_dir, 'image_label.'+image_file.split('.')[-1])
-        #cv2.imwrite(label_image_file, save_img)
-        #
 
         #file_name_dest, image_file, lines
         new_lines = []
@@ -318,7 +316,6 @@ class OcrMain(object):
         if len(results) > len(lines):
             results = results[0:len(lines)]
             
-        print("results       length: ", len(results))
         
         for line, result in zip(lines, results) :
             new_line = '{},{:.4f},{}\n'.format(line.replace("\n", ''), float(result[2]), result[1] )
@@ -327,7 +324,7 @@ class OcrMain(object):
         file_name_dest = os.path.join(self.output_dir, label_file.split('/')[-1].split('.')[0] + '.json' )
         converToTextract = ConverToTextract( file_name_dest, image_file, new_lines)
         converToTextract.convert()
-        print('【输出】生成json文件{} .'.format(file_name_dest))
+        print('【输出】生成json文件{}.   识别{}个文本'.format(file_name_dest, len(results)))
         
 
     def main(self):
