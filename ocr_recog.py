@@ -198,7 +198,7 @@ class OcrMain(object):
             demo_data, batch_size=self.args.batch_size,
             shuffle=False,
             num_workers=int(self.args.workers),
-            collate_fn=self.AlignCollate_demo, pin_memory=True)    
+            collate_fn=self.AlignCollate_demo, pin_memory=False)    
             
         test_recong(self.args, model, demo_loader, self.converter, device)   
         

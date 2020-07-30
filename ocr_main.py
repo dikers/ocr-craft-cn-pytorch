@@ -93,7 +93,7 @@ class OcrMain(object):
         # recognition model 识别模型
         parser.add_argument('--image_folder', default='/home/ec2-user/tfc/031_ocr/ocr-craft-cn-pytorch/recognition/temp/',   help='path to image_folder which contains text images')
         parser.add_argument('--workers', type=int, help='number of data loading workers', default=4)
-        parser.add_argument('--batch_size', type=int, default=4, help='input batch size')
+        parser.add_argument('--batch_size', type=int, default=64, help='input batch size')
         parser.add_argument('--saved_model', required=True, help="path to saved_model to evaluation")
         """ Data processing """
         parser.add_argument('--batch_max_length', type=int, default=32, help='maximum-label-length')
@@ -304,7 +304,7 @@ class OcrMain(object):
             shuffle=False,
             num_workers=int(self.args.workers),
             drop_last = True,
-            collate_fn=self.AlignCollate_demo, pin_memory=True)    
+            collate_fn=self.AlignCollate_demo, pin_memory=False)    
             
         results = test_recong(self.args, self.model, demo_loader,self.converter, device)    
         #label_image_file = os.path.join(sub_image_dir, 'image_label.'+image_file.split('.')[-1])
