@@ -3,8 +3,32 @@
 中文 文本区域检测和文本识别的pytorch实现
 
 
+# 建立环境
+```
+conda create -n  ocr-cn python=3.6 pip  numpy
+source activate ocr
+pip install -r requirements.txt -i https://mirrors.163.com/pypi/simple/
 
-# CRAFT
+```
+
+
+# 下载预训练模型
+
+
+
+
+# 文本识别
+
+```
+sh ocr_main.sh
+
+```
+
+
+
+
+
+# CRAFT 文本区域检测
 
 Official Pytorch implementation of CRAFT text detector | [Paper](https://arxiv.org/abs/1904.01941) | [Pretrained Model](https://drive.google.com/open?id=1Jk4eGD7crsqCCg9C9VjCLkMN3ze8kutZ) | [Supplementary](https://youtu.be/HI8MzpY8KMI)
 

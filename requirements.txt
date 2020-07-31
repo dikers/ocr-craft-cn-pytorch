@@ -1,5 +1,8 @@
-torch==0.4.1.post2
-torchvision==0.2.1
-opencv-python==3.4.2.17
-scikit-image==0.14.2
-scipy==1.1.0
+torch==1.2.0
+torchvision==0.4.1
+opencv-python==4.2.0.34
+scikit-image==0.17.2
+scipy==1.4.1
+PyMuPDF==1.16.17
+lmdb==0.98
+natsort==7.0.1

@@ -240,9 +240,9 @@ if __name__ == '__main__':
                         help='assign ratio for each selected data in the batch')
     parser.add_argument('--total_data_usage_ratio', type=str, default='1.0',
                         help='total data usage ratio, this ratio is multiplied to total number of data.')
-    parser.add_argument('--batch_max_length', type=int, default=32, help='maximum-label-length')
+    parser.add_argument('--batch_max_length', type=int, default=40, help='maximum-label-length')
     parser.add_argument('--imgH', type=int, default=32, help='the height of the input image')
-    parser.add_argument('--imgW', type=int, default=240, help='the width of the input image')
+    parser.add_argument('--imgW', type=int, default=280, help='the width of the input image')
     parser.add_argument('--rgb', action='store_true', help='use rgb input')
     parser.add_argument('--character', type=str,
                         default='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', help='character label')
@@ -263,12 +263,12 @@ if __name__ == '__main__':
     parser.add_argument('--hidden_size', type=int, default=256, help='the size of the LSTM hidden state')
     
     parser.add_argument('--label_file_list', type=str, required=True, help='label_file_list')
-    parser.add_argument('--gpu_list', type=str, default='0', help='gpu_list')
+    #parser.add_argument('--gpu_list', type=str, default='0', help='gpu_list')
 
 
     opt = parser.parse_args()
 
-    os.environ['CUDA_VISIBLE_DEVICES'] = opt.gpu_list
+    #os.environ['CUDA_VISIBLE_DEVICES'] = opt.gpu_list
     if not opt.exp_name:
         opt.exp_name = f'{opt.Transformation}-{opt.FeatureExtraction}-{opt.SequenceModeling}-{opt.Prediction}'
         opt.exp_name += f'-Seed{opt.manualSeed}'
