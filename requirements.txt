@@ -1,3 +1,4 @@
+numpy
 torch==1.2.0
 torchvision==0.4.1
 opencv-python==4.2.0.34
@@ -6,3 +7,4 @@ scipy==1.4.1
 PyMuPDF==1.16.17
 lmdb==0.98
 natsort==7.0.1
+nltk==3.5

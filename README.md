@@ -5,9 +5,12 @@
 
 # 建立环境
 ```
-conda create -n  ocr-cn python=3.6 pip  numpy
+conda create -n  ocr python=3.6
 source activate ocr
-pip install -r requirements.txt -i https://mirrors.163.com/pypi/simple/
+pip install -r requirements.txt -i https://mirrors.163.com/pypi/simple/  --default-timeout=3000
+
+
+sh ocr_main.sh
 
 ```
 
@@ -18,6 +21,23 @@ pip install -r requirements.txt -i https://mirrors.163.com/pypi/simple/
 
 
 # 文本识别
+
+修改对应参数  输入输出文件夹路径 以及两个模型的路径 
+```
+python3 ocr_main.py  \
+-i 'temp/input/' \                                   #修改
+-o 'temp/output/' \                                  #修改
+--cuda==False  \
+--batch_size 32 \
+--label_file_list  'sample_data/chars.txt' \            
+--Transformation TPS \
+--FeatureExtraction ResNet \
+--SequenceModeling BiLSTM \
+--Prediction Attn \
+--saved_model atte/saved_models/TPS-ResNet-BiLSTM-Attn-Seed1111/best_accuracy.pth \   #修改
+--trained_model  'craft/weights/craft_mlt_25k.pth'                                    #修改  
+```
+
 
 ```
 sh ocr_main.sh
