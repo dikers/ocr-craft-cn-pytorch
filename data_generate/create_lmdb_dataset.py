@@ -49,6 +49,9 @@ def createDataset(inputPath, gtFile, outputPath, checkValid=True):
             continue
         imagePath = items[0]
         label = ' '.join(items[1:])
+        #去除label 两端的空格
+        label = label.lstrip().rstrip()
+
         #imagePath, label = datalist[i].strip('\n').split(' ')
         imagePath = os.path.join(inputPath, imagePath)
 

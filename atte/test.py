@@ -128,6 +128,10 @@ def validation(model, criterion, evaluation_loader, converter, opt):
         preds_max_prob, _ = preds_prob.max(dim=2)
         confidence_score_list = []
         for gt, pred, pred_max_prob in zip(labels, preds_str, preds_max_prob):
+            # add by dikers: 去掉两端的空格
+            pred = pred.lstrip().rstrip()
+            gt = gt.lstrip().rstrip()
+            
             if 'Attn' in opt.Prediction:
                 gt = gt[:gt.find('[s]')]
                 pred_EOS = pred.find('[s]')
@@ -142,7 +146,8 @@ def validation(model, criterion, evaluation_loader, converter, opt):
                 out_of_alphanumeric_case_insensitve = f'[^{alphanumeric_case_insensitve}]'
                 pred = re.sub(out_of_alphanumeric_case_insensitve, '', pred)
                 gt = re.sub(out_of_alphanumeric_case_insensitve, '', gt)
-
+            
+            
             if pred == gt:
                 n_correct += 1
 
@@ -174,8 +179,14 @@ def validation(model, criterion, evaluation_loader, converter, opt):
     accuracy = n_correct / float(length_of_data) * 100
     norm_ED = norm_ED / float(length_of_data)  # ICDAR2019 Normalized Edit Distance
 
-    return valid_loss_avg.val(), accuracy, norm_ED, preds_str, confidence_score_list, labels, infer_time, length_of_data
+    return valid_loss_avg.val(), accuracy, norm_ED, strip_str(preds_str), confidence_score_list, strip_str(labels), infer_time, length_of_data
 
+# add by dikers, 去除两端的空格
+def strip_str(str_list):
+    new_str_list = []
+    for s in str_list:
+        new_str_list.append(s.lstrip().rstrip())
+    return new_str_list
 
 def test(opt):
     """ model configuration """
