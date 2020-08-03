@@ -19,7 +19,6 @@ def test_recong(opt, model, demo_loader, converter, device):
         
         results = [] 
         for image_tensors, image_path_list in demo_loader:
-            print("=========================================")
             batch_size = image_tensors.size(0)
             image = image_tensors.to(device)
             # For max length prediction
@@ -52,6 +51,8 @@ def test_recong(opt, model, demo_loader, converter, device):
             preds_prob = F.softmax(preds, dim=2)
             preds_max_prob, _ = preds_prob.max(dim=2)
             for img_name, pred, pred_max_prob in zip(image_path_list, preds_str, preds_max_prob):
+                # add by dikers: 去掉两端的空格
+                pred = pred.replace('．', '.').lstrip().rstrip()
                 if 'Attn' in opt.Prediction:
                     pred_EOS = pred.find('[s]')
                     pred = pred[:pred_EOS]  # prune after "end of sentence" token ([s])

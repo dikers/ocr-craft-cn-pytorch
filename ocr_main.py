@@ -31,7 +31,7 @@ from recognition.textract import ConverToTextract
 
 
 
-DEBUG = False
+DEBUG = True
 
 #device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 device = torch.device('cpu')
@@ -280,7 +280,7 @@ class OcrMain(object):
             new_width = int(width * new_height / height)
             
             #print(" {} {}  new {} {}".format(width, height, new_width, new_height ) )
-            c_img=cv2.resize(c_img,(new_width, new_height))   
+            #c_img=cv2.resize(c_img,(new_width, new_height))   
             new_image_file = os.path.join( sub_image_dir,  str(i).zfill(6)+ '.jpg')
 
             #print("sub image: ", new_image_file)

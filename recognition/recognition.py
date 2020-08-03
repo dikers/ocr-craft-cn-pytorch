@@ -19,7 +19,6 @@ def test_recong(opt, model, demo_loader, converter, device):
         
         results = [] 
         for image_tensors, image_path_list in demo_loader:
-            print("=========================================")
             batch_size = image_tensors.size(0)
             image = image_tensors.to(device)
             # For max length prediction
@@ -45,13 +44,14 @@ def test_recong(opt, model, demo_loader, converter, device):
 
 
             dashed_line = '-' * 110
-            head = f'{"image_path":55s}\t{"predicted_labels":25s}\tconfidence score'
+            head = f'{"image_path":50s}\t{"predicted_labels":30s}\tconfidence score'
             
             print(f'{dashed_line}\n{head}\n{dashed_line}')
 
             preds_prob = F.softmax(preds, dim=2)
             preds_max_prob, _ = preds_prob.max(dim=2)
             for img_name, pred, pred_max_prob in zip(image_path_list, preds_str, preds_max_prob):
+                pred = pred.replace('．', '.').lstrip().rstrip()
                 if 'Attn' in opt.Prediction:
                     pred_EOS = pred.find('[s]')
                     pred = pred[:pred_EOS]  # prune after "end of sentence" token ([s])
@@ -62,7 +62,7 @@ def test_recong(opt, model, demo_loader, converter, device):
                 if len(pred_max_prob.cumprod(dim=0)) > 0:
                     confidence_score = pred_max_prob.cumprod(dim=0)[-1]
 
-                print(f'{img_name:25s}\t{pred:25s}\t{confidence_score:0.4f}')
+                print(f'{img_name:50s}\t{pred:30s}\t{confidence_score:0.4f}')
                 results.append((img_name, pred, confidence_score))
                 
                 

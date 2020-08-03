@@ -191,15 +191,15 @@ def train(opt):
                 log.write(loss_model_log + '\n')
 
                 # show some predicted results
-                dashed_line = '-' * 100
-                head = f'{"Ground Truth":30s} | {"Prediction":30s} | Confidence Score & T/F'
+                dashed_line = '-' * 110
+                head = f'{"Ground Truth":40s} | {"Prediction":40s} | Confidence Score & T/F'
                 predicted_result_log = f'{dashed_line}\n{head}\n{dashed_line}\n'
                 for gt, pred, confidence in zip(labels[:5], preds[:5], confidence_score[:5]):
                     if 'Attn' in opt.Prediction:
                         gt = gt[:gt.find('[s]')]
                         pred = pred[:pred.find('[s]')]
 
-                    predicted_result_log += f'{gt:30s} | {pred:30s} | {confidence:0.4f} \t {str(pred == gt)}\n'
+                    predicted_result_log += f'{gt:40s} | {pred:40s} | {confidence:0.4f} \t {str(pred == gt)}\n'
                 predicted_result_log += f'{dashed_line}'
                 print(predicted_result_log)
                 log.write(predicted_result_log + '\n')
@@ -264,14 +264,10 @@ if __name__ == '__main__':
     parser.add_argument('--hidden_size', type=int, default=256, help='the size of the LSTM hidden state')
     
     parser.add_argument('--label_file_list', type=str, default='data/chars.txt', help='label_file_list')
-    #parser.add_argument('--gpu_list', type=str, default='0', help='gpu_list')
 
-    # /opt/ml/output/model/
-    # /opt/ml/input/data/training/
      
     opt = parser.parse_args()
 
-    #os.environ['CUDA_VISIBLE_DEVICES'] = opt.gpu_list
     if not opt.exp_name:
         opt.exp_name = f'{opt.Transformation}-{opt.FeatureExtraction}-{opt.SequenceModeling}-{opt.Prediction}'
         opt.exp_name += f'-Seed{opt.manualSeed}'

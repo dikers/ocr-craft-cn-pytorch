@@ -129,8 +129,8 @@ def validation(model, criterion, evaluation_loader, converter, opt):
         confidence_score_list = []
         for gt, pred, pred_max_prob in zip(labels, preds_str, preds_max_prob):
             # add by dikers: 去掉两端的空格
-            pred = pred.lstrip().rstrip()
-            gt = gt.lstrip().rstrip()
+            pred = pred.replace('．', '.').lstrip().rstrip()
+            gt = gt.replace('．', '.').lstrip().rstrip()
             
             if 'Attn' in opt.Prediction:
                 gt = gt[:gt.find('[s]')]
