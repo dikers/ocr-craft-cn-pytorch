@@ -9,6 +9,7 @@ python3 train.py \
 --batch_ratio '0.4-0.1-0.2-0.15-0.15' \
 --batch_size 160 \
 --valInterval 200 \
---label_file_list  '../sample_data/chars.txt' \
+--output 'saved_models' \
+--label_file_list  'data/chars.txt' \
 --Transformation TPS --FeatureExtraction ResNet --SequenceModeling BiLSTM --Prediction Attn \
 --saved_model saved_models/TPS-ResNet-BiLSTM-Attn-Seed1111/best_accuracy.pth
