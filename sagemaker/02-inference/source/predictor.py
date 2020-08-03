@@ -14,14 +14,13 @@ import json
 import numpy as np
 
 prefix = '/opt/ml/model'
-# model_path = os.path.join(prefix, 'model.h5')
+model_path = os.path.join(prefix, 'TPS-ResNet-BiLSTM-Attn-Seed1111/best_accuracy.pth')
 s3_client = boto3.client('s3')
 dirs = os.listdir( prefix )
 
 # 
 for file in dirs:
     print("-------------- file ", file)
-
 
 
 # The flask app for serving predictions
@@ -71,7 +70,19 @@ def transformation():
  
     print(" parse file path: {} ".format(args_input_file))
  
-    inference_result = {'name':'hello'}
+    status = 0
+        
+    if os.path.exists(model_path):
+        print("=============================={} OK".format(model_path))
+        status = 1
+    else:
+        print("=============================={} Error".format(model_path))
+        status = 2
+
+
+
+
+    inference_result = {'name':'hello', 'status': status}
     _payload = json.dumps(inference_result)
  
     return flask.Response(response=_payload, status=200, mimetype='application/json')
