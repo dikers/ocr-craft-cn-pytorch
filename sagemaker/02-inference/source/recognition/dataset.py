@@ -263,17 +263,18 @@ class RawCV2Dataset(Dataset):
         self.opt = opt
         self.image_obj_list = image_obj_list
         self.nSamples = len(self.image_obj_list)
+        print("RawCV2Dataset init  size=[{}]".format(self.nSamples))
 
     def __len__(self):
         return self.nSamples
 
     def __getitem__(self, index):
-        #print('RawCV2Dataset  index {} file {} '.format(index, self.image_obj_list[index][0]))
+        print('RawCV2Dataset  index {} file {} '.format(index, self.image_obj_list[index][0]))
         image = Image.fromarray(cv2.cvtColor(self.image_obj_list[index][1] ,cv2.COLOR_BGR2RGB))  
         if not self.opt.rgb:
             image = image.convert('L')
 
-        #print('RawCV2Dataset image  {} file {}'.format(image, self.image_obj_list[index][0]))
+        print('RawCV2Dataset image  {} file {}'.format(image, self.image_obj_list[index][0]))
         return (image, self.image_obj_list[index][0])
     
 class ResizeNormalize(object):

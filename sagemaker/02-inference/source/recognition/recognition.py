@@ -19,6 +19,7 @@ def test_recong(opt, model, demo_loader, converter, device):
         
         results = [] 
         for image_tensors, image_path_list in demo_loader:
+            print("----test_recong   image_path_list size={} ".format(len(image_path_list)))
             batch_size = image_tensors.size(0)
             image = image_tensors.to(device)
             # For max length prediction

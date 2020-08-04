@@ -21,6 +21,7 @@ from multiprocessing import Pool
 from collections import OrderedDict
 
 
+import traceback
 import json
 import shutil
 import numpy as np
@@ -39,9 +40,10 @@ from recognition.model import Model
 from recognition.dataset import RawCV2Dataset, RawDataset, AlignCollate
 from recognition.textract import ConverToTextract
 
-# The flask app for serving predictions
-DEBUG = False
 
+DEBUG = True
+
+# The flask app for serving predictions
 app = flask.Flask(__name__)
 #device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 device = torch.device('cpu')
@@ -64,8 +66,8 @@ class Args_parser:
         self.refiner_model = False
         
         
-        self.workers = 4
-        self.batch_size = 32
+        self.workers = 0    #main process
+        self.batch_size = 64
         self.saved_model = '/opt/ml/model/TPS-ResNet-BiLSTM-Attn-Seed1111/best_accuracy.pth'
         
         self.batch_max_length = 40
@@ -185,7 +187,8 @@ def recongnize_image_file(args, image_file, output_dir):
             textract_json = recongnize_sub_image_file(args, image_file, label_file, output_dir)
         except Exception as exception:
             print("【Error】 图片[{}]  没有解析成功 ".format(image_file))
-            print(exception)
+            print('【Error】 exception  [{}]'.format(exception))
+            traceback.print_exc()
 
     else:
         print("【Error】 图片[{}]  没有生成对应的label文件 [{}]".format(image_file, label_file))
@@ -233,13 +236,9 @@ def recongnize_sub_image_file(args, image_file, label_file, output_dir):
             cv2.imwrite(new_image_file, c_img)
         image_obj_list.append((new_image_file, c_img))
 
-    #print("image_obj_list   start      length: ", len(image_obj_list))
 
     # 补齐  batch_size
-    if len(image_obj_list) > args.batch_size and  len(image_obj_list) % args.batch_size !=0:
-        for item in range(args.batch_size - len(image_obj_list) % args.batch_size):
-            image_obj_list.append(image_obj_list[-1])
-
+    
     print("识别了对象数量={}".format(len(image_obj_list)))
 
     demo_data = RawCV2Dataset(image_obj_list=image_obj_list, opt=args)  # use RawDataset
@@ -248,7 +247,7 @@ def recongnize_sub_image_file(args, image_file, label_file, output_dir):
         demo_data, batch_size=args.batch_size,
         shuffle=False,
         num_workers=int(args.workers),
-        drop_last = True,
+        drop_last = False,
         collate_fn=alignCollate_demo, pin_memory=False)    
 
     results = test_recong(args, model, demo_loader, converter, device)    
@@ -344,7 +343,7 @@ def invocations():
     tt = time.mktime(datetime.datetime.now().timetuple())
 
     args_verbose = False
-    args_output_dir = './'+ str(int(tt)) + download_file_name.split('.')[0]
+    args_output_dir = os.path.join(init_output_dir,  str(int(tt)) + download_file_name.split('.')[0])
     args_input_file = download_file_name
  
     if not os.path.exists(args_output_dir):
@@ -372,6 +371,12 @@ def invocations():
 
 
 #---------------------------------------
+init_output_dir = '/opt/ml/output_dir'
+
+if not os.path.exists(init_output_dir):
+    os.mkdir(init_output_dir)
+else:
+    print("-------------init_output_dir ", init_output_dir)
 args = Args_parser()
 s3_client = boto3.client('s3')
 craft_net, model, alignCollate_demo, converter = init_model()
