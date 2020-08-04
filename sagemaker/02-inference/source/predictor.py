@@ -268,6 +268,7 @@ def recongnize_sub_image_file(args, image_file, label_file, output_dir):
     converToTextract = ConverToTextract( file_name_dest, image_file, new_lines)
     textract_json = converToTextract.convert()
     print('【输出】生成json文件{}.   识别{}个文本'.format(file_name_dest, len(results)))
+    print(textract_json)
     
     return textract_json
         
