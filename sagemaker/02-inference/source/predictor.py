@@ -337,7 +337,7 @@ def invocations():
         image_uri = data['image_uri']
     else:
         return flask.Response(response='This predictor only supports JSON data', status=415, mimetype='text/plain')    
-    """
+    
     download_file_name = image_uri.split('/')[-1]
     #s3_client.download_file(bucket, image_uri, download_file_name)
 
@@ -363,7 +363,7 @@ def invocations():
     
     
     shutil.rmtree(args_output_dir)  
-    """
+    
     
     _payload = json.dumps({'status': 400, 'message': 'ocr failed'})
     return flask.Response(response=_payload, status=200, mimetype='application/json')
