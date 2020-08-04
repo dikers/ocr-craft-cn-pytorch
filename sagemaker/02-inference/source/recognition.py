@@ -52,7 +52,7 @@ def test_recong(opt, model, demo_loader, converter, device):
             preds_max_prob, _ = preds_prob.max(dim=2)
             for img_name, pred, pred_max_prob in zip(image_path_list, preds_str, preds_max_prob):
                 # add by dikers: 去掉两端的空格
-                pred = pred.replace('．', '.').lstrip().rstrip()
+                pred = format_string(pred)
                 if 'Attn' in opt.Prediction:
                     pred_EOS = pred.find('[s]')
                     pred = pred[:pred_EOS]  # prune after "end of sentence" token ([s])
@@ -69,4 +69,32 @@ def test_recong(opt, model, demo_loader, converter, device):
                 
                 
     return results
- 
+
+
+def merge_spe_char(pred, spec, new_spec):
+    index = pred.find(spec)
+    new_pred = ''
+    if index>0 and index < len(pred)-1:
+        if pred[index-1].isdigit() and pred[index+1].isdigit():
+            new_pred = '{}.{}'.format(pred[0:index],pred[index+1:])
+            return new_pred
+        
+    return pred      
+
+def format_string(pred):
+    # !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~°±·×àé÷üαβγδωОПР–—―‘’“”…‰′※℃ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪ→↓∈√∩∵∶≠≤≥①②③④⑤⑥⑦⑧⑨⑩⑴⑵⑶⑾⑿⒀⒂⒃⒄⒅⒆⒉─━│┌┐╱■□▲△◆◇○◎●★☆、。〇〈〉《》「」『』【】〔〕
+    pred = pred.replace('．', '.').lstrip().rstrip()
+    pred = pred.replace('∶', ':').replace('︰', ':').replace('：', ':')
+    pred = pred.replace('﹐', ',')
+    pred = pred.replace('？', '?').replace('﹖', '?')
+    pred = pred.replace('～', '~').replace('﹑', '、')
+    pred = pred.replace('２', '2').replace('Ａ', 'A').replace('C', 'C')
+    pred = pred.replace('；', ';').replace('﹔', ';')
+    pred = pred.replace('，',',').replace('－', '-').replace('！', '!').replace('＋', '+')
+    pred = pred.replace('）', ')').replace('（', '(').replace('○','0')
+    pred = merge_spe_char(pred,'。', '.')
+    pred = merge_spe_char(pred,'、', '.')
+    pred = merge_spe_char(pred,'一', '-')
+    return pred
+    
+    
