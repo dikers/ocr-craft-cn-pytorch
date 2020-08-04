@@ -8,7 +8,6 @@ import cv2
 import sys
 import time
 import uuid
-import fitz
 import json
 import glob
 import boto3
@@ -16,7 +15,6 @@ import flask
 import errno
 import shutil
 import datetime
-import argparse
 from PIL import Image
 from pathlib import Path
 from multiprocessing import Pool
@@ -50,55 +48,44 @@ device = torch.device('cpu')
 def str2bool(v):
     return v.lower() in ("yes", "y", "true", "t", "1")
 #--------------------------初始化-------------------------------------------------
-def parse_arguments():
-    """
-        Parse the command line arguments of the program.
-    """
-
-    parser = argparse.ArgumentParser(
-        description="Textract 中文版本"
-    )
-    # Detection model  检测模型
-    parser.add_argument('--trained_model', default='weights/craft_mlt_25k.pth', type=str, help='pretrained model')
-    parser.add_argument('--text_threshold', default=0.7, type=float, help='text confidence threshold')
-    parser.add_argument('--low_text', default=0.4, type=float, help='text low-bound score')
-    parser.add_argument('--link_threshold', default=0.4, type=float, help='link confidence threshold')
-    parser.add_argument('--cuda', default=False, type=str2bool,  help='Use cuda for inference')
-    parser.add_argument('--canvas_size', default=1280, type=int, help='image size for inference')
-    parser.add_argument('--mag_ratio', default=1.5, type=float, help='image magnification ratio')
-    parser.add_argument('--poly', default=False, action='store_true', help='enable polygon type')
-    parser.add_argument('--show_time', default=False, action='store_true', help='show processing time')
-    parser.add_argument('--refine', default=False,  type=str2bool,  help='enable link refiner')
-    parser.add_argument('--refiner_model', default='weights/craft_refiner_CTW1500.pth', type=str, help='pretrained refiner model')
-
-
-    # recognition model 识别模型
-    parser.add_argument('--image_folder', default='./temp/',   help='path to image_folder which contains text images')
-    parser.add_argument('--workers', type=int, help='number of data loading workers', default=4)
-    parser.add_argument('--batch_size', type=int, default=32, help='input batch size')
-    parser.add_argument('--saved_model', default='/opt/ml/model/TPS-ResNet-BiLSTM-Attn-Seed1111/best_accuracy.pth', help="path to saved_model to evaluation")
-    
-    """ Data processing """
-    parser.add_argument('--batch_max_length', type=int, default=40, help='maximum-label-length')
-    parser.add_argument('--imgH', type=int, default=32, help='the height of the input image')
-    parser.add_argument('--imgW', type=int, default=280, help='the width of the input image')
-    parser.add_argument('--rgb', action='store_true', help='use rgb input')
-    parser.add_argument('--character', type=str, default='0123456789abcdefghijklmnopqrstuvwxyz', help='character label')
-    parser.add_argument('--sensitive', action='store_true', default=True,  help='for sensitive character mode')
-    parser.add_argument('--PAD', action='store_true', help='whether to keep ratio then pad for image resize')
-    """ Model Architecture """
-    parser.add_argument('--Transformation', type=str, default='TPS', help='Transformation stage. None|TPS')
-    parser.add_argument('--FeatureExtraction', type=str, default='ResNet', help='FeatureExtraction stage. VGG|RCNN|ResNet')
-    parser.add_argument('--SequenceModeling', type=str, default='BiLSTM', help='SequenceModeling stage. None|BiLSTM')
-    parser.add_argument('--Prediction', type=str, default='Attn', help='Prediction stage. CTC|Attn')
-    parser.add_argument('--num_fiducial', type=int, default=20, help='number of fiducial points of TPS-STN')
-    parser.add_argument('--input_channel', type=int, default=1, help='the number of input channel of Feature extractor')
-    parser.add_argument('--output_channel', type=int, default=512,
-                        help='the number of output channel of Feature extractor')
-    parser.add_argument('--hidden_size', type=int, default=256, help='the size of the LSTM hidden state')
-    parser.add_argument('--label_file_list', type=str, default='sample_data/chars.txt', help='label_file_list')
-
-    return parser.parse_args()
+class Args_parser:
+ 
+    def __init__(self):
+        self.trained_model = '/opt/ml/code/weights/craft_mlt_25k.pth'
+        self.text_threshold = 0.7
+        self.low_text = 0.4
+        self.link_threshold = 0.4
+        self.cuda = False
+        self.canvas_size = 1280
+        self.mag_ratio = 1.5
+        self.poly = False
+        self.show_time = False
+        self.refine = False
+        self.refiner_model = False
+        
+        
+        self.workers = 4
+        self.batch_size = 32
+        self.saved_model = '/opt/ml/model/TPS-ResNet-BiLSTM-Attn-Seed1111/best_accuracy.pth'
+        
+        self.batch_max_length = 32
+        self.imgH = 32
+        self.imgW = 32
+        self.rgb = False
+        self.character = '0123456789abcdefghijklmnopqrstuvwxyz'
+        self.sensitive = True
+        self.PAD = False
+        
+        self.Transformation = 'TPS'
+        self.FeatureExtraction = 'ResNet'
+        self.SequenceModeling = 'BiLSTM'
+        self.Prediction = 'Attn'
+        self.num_fiducial = 20
+        self.input_channel = 1
+        self.output_channel = 512
+        self.hidden_size = 256
+        self.label_file_list = 'sample_data/chars.txt'
+        
 
 
 def init_craft_net(args):
@@ -338,6 +325,7 @@ def invocations():
     """Do an inference
     """
     
+  
     data = None
     #解析json，
     if flask.request.content_type == 'application/json':
@@ -348,7 +336,7 @@ def invocations():
         image_uri = data['image_uri']
     else:
         return flask.Response(response='This predictor only supports JSON data', status=415, mimetype='text/plain')    
-
+    """
     download_file_name = image_uri.split('/')[-1]
     #s3_client.download_file(bucket, image_uri, download_file_name)
 
@@ -374,24 +362,30 @@ def invocations():
     
     
     shutil.rmtree(args_output_dir)  
+    """
+    
+    _payload = json.dumps({'status': 400, 'message': 'ocr failed'})
     return flask.Response(response=_payload, status=200, mimetype='application/json')
 
 
 
 
 #---------------------------------------
-args = parse_arguments()
+args = Args_parser()
+print("---------------------------------args ")
 s3_client = boto3.client('s3')
 craft_net, model, alignCollate_demo, converter = init_model()
 #---------------------------------------
 
+
 if __name__ == '__main__':
     app.run()
+    
     print("server ------run")
-    """
+    
     output_dir = os.path.join(output_dir, 'temp')
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
         
     ocr_main('test.jpg', output_dir)
-    """    
+ 

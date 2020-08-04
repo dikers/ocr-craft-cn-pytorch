@@ -7,7 +7,6 @@ import shutil
 import errno
 import time
 import uuid
-import fitz
 import json
 import glob
 import cv2
