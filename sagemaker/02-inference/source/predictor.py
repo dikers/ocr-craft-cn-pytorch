@@ -41,7 +41,7 @@ from recognition.dataset import RawCV2Dataset, RawDataset, AlignCollate
 from recognition.textract import ConverToTextract
 
 
-DEBUG = True
+DEBUG = False
 
 # The flask app for serving predictions
 app = flask.Flask(__name__)
@@ -254,7 +254,7 @@ def recongnize_sub_image_file(args, image_file, label_file, output_dir):
 
     #file_name_dest, image_file, lines
     new_lines = []
-    print("line length:  {}   result length: {} ".format(len(lines), len(results)))
+    #print("line length:  {}   result length: {} ".format(len(lines), len(results)))
 
     if len(results) > len(lines):
         results = results[0:len(lines)]
@@ -268,7 +268,7 @@ def recongnize_sub_image_file(args, image_file, label_file, output_dir):
     converToTextract = ConverToTextract( file_name_dest, image_file, new_lines)
     textract_json = converToTextract.convert()
     print('【输出】生成json文件{}.   识别{}个文本'.format(file_name_dest, len(results)))
-    print(textract_json)
+    #print(textract_json)
     
     return textract_json
         
@@ -357,15 +357,13 @@ def invocations():
     inference_result = ocr_main(download_file_name, args_output_dir)
 
     
-    _payload = json.dumps({'status': 400, 'message': 'ocr failed'})
+    _payload = json.dumps({'status': 400, 'message': 'ocr failed!'})
     if inference_result:
          _payload = json.dumps(inference_result)
     
     
     shutil.rmtree(args_output_dir)  
     
-    
-    _payload = json.dumps({'status': 400, 'message': 'ocr failed'})
     return flask.Response(response=_payload, status=200, mimetype='application/json')
 
 
