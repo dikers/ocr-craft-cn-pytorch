@@ -63,7 +63,8 @@ class ConverToTextract:
 
         block_page["Relationships"] = [{"Type": "CHILD", "Ids": ids}]
         block_page["Page"] = 1
-        self.__write_result(result)
+        #self.__write_result(result)
+        return result
 
 
 if __name__ == "__main__":

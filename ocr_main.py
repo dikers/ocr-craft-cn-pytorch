@@ -60,22 +60,8 @@ class OcrMain(object):
         parser = argparse.ArgumentParser(
             description="Textract 中文版本"
         )
-        parser.add_argument(
-            "-o",
-            "--output_dir",
-            type=str,
-            nargs="?",
-            help="输出文件的本地路径",
-            required=True
-        )
-        parser.add_argument(
-            "-i",
-            "--input_dir",
-            type=str,
-            nargs="?",
-            help="输入文件路径",
-            required=True
-        )
+        parser.add_argument("-o","--output_dir",type=str,nargs="?",help="输出文件的本地路径",required=True)
+        parser.add_argument("-i","--input_dir",type=str,nargs="?",help="输入文件路径",required=True)
         # Detection model  检测模型
         parser.add_argument('--trained_model', default='weights/craft_mlt_25k.pth', type=str, help='pretrained model')
         parser.add_argument('--text_threshold', default=0.7, type=float, help='text confidence threshold')

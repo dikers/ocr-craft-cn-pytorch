@@ -1,5 +1,4 @@
 # https://aws.amazon.com/cn/releasenotes/available-deep-learning-containers-images/
-# FROM 763104351884.dkr.ecr.us-west-2.amazonaws.com/tensorflow-training:1.15.2-cpu-py36-ubuntu18.04
 FROM 727897471807.dkr.ecr.cn-northwest-1.amazonaws.com.cn/pytorch-inference:1.5.0-gpu-py36-cu101-ubuntu16.04
 
 
@@ -11,6 +10,10 @@ RUN apt-get -y update && apt-get install -y --no-install-recommends \
 # RUN mkdir /opt/ml/code
 WORKDIR /opt/ml/code
 COPY source ./
+
+WORKDIR /opt/ml/code/weights
+wget https://dikers-data.s3.cn-northwest-1.amazonaws.com.cn/dataset/craft_mlt_25k.pth
+
 
 RUN pip install --upgrade pip  -i https://mirrors.163.com/pypi/simple/
 RUN pip install -r requirements.txt  -i https://mirrors.163.com/pypi/simple/
