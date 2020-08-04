@@ -68,9 +68,9 @@ class Args_parser:
         self.batch_size = 32
         self.saved_model = '/opt/ml/model/TPS-ResNet-BiLSTM-Attn-Seed1111/best_accuracy.pth'
         
-        self.batch_max_length = 32
+        self.batch_max_length = 40
         self.imgH = 32
-        self.imgW = 32
+        self.imgW = 280
         self.rgb = False
         self.character = '0123456789abcdefghijklmnopqrstuvwxyz'
         self.sensitive = True
@@ -114,6 +114,7 @@ def init_recognition_model(args):
 
     file_list = args.label_file_list.split(',')
     args.character = get_key_from_file_list(file_list)  
+    print(args.character)
 
 
     cudnn.benchmark = True
@@ -372,7 +373,6 @@ def invocations():
 
 #---------------------------------------
 args = Args_parser()
-print("---------------------------------args ")
 s3_client = boto3.client('s3')
 craft_net, model, alignCollate_demo, converter = init_model()
 #---------------------------------------
@@ -380,12 +380,12 @@ craft_net, model, alignCollate_demo, converter = init_model()
 
 if __name__ == '__main__':
     app.run()
-    
+    """
     print("server ------run")
     
-    output_dir = os.path.join(output_dir, 'temp')
+    output_dir = os.path.join('./', 'temp')
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
         
-    ocr_main('test.jpg', output_dir)
- 
+    ocr_main('../../../sample_data/images/test.jpg', output_dir)
+    """ 
