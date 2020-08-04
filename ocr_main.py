@@ -274,14 +274,16 @@ class OcrMain(object):
                 cv2.imwrite(new_image_file, c_img)
             image_obj_list.append((new_image_file, c_img))
 
-        print("image_obj_list   start      length: ", len(image_obj_list))
+        #print("image_obj_list   start      length: ", len(image_obj_list))
             
         # 补齐  batch_size
+        """
         if len(image_obj_list) >  self.args.batch_size and  len(image_obj_list) % self.args.batch_size !=0:
             for item in range(self.args.batch_size - len(image_obj_list) % self.args.batch_size):
                 image_obj_list.append(image_obj_list[-1])
-            
-        print("image_obj_list   end      length: ", len(image_obj_list))
+        """
+        
+        print("image_obj_list  length: ", len(image_obj_list))
             
         demo_data = RawCV2Dataset(image_obj_list=image_obj_list, opt=self.args)  # use RawDataset
         #demo_data = RawDataset(root=sub_image_dir, opt=self.args)
@@ -290,7 +292,7 @@ class OcrMain(object):
             demo_data, batch_size=self.args.batch_size,
             shuffle=False,
             num_workers=int(self.args.workers),
-            drop_last = True,
+            drop_last = False,
             collate_fn=self.AlignCollate_demo, pin_memory=False)    
             
         results = test_recong(self.args, self.model, demo_loader,self.converter, device)    
