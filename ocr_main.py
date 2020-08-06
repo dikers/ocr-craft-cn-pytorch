@@ -14,6 +14,7 @@ import cv2
 import os
 from collections import OrderedDict
 
+import traceback
 import torch
 import torch.nn as nn
 import torch.backends.cudnn as cudnn
@@ -221,8 +222,11 @@ class OcrMain(object):
             if os.path.exists(label_file):
                 try:      
                     self.recongnize_sub_image_file(image_file, label_file, sub_image_dir)
-                except Exception:
+                except Exception as e:
                     print("【Error】 图片[{}]  没有解析成功 ".format(image_file))
+                    print('traceback.print_exc():', traceback.print_exc())
+                    print('traceback.format_exc():\n%s' % traceback.format_exc())
+                    
             
             else:
                 print("【Error】 图片[{}]  没有生成对应的label文件 [{}]".format(image_file, label_file))
@@ -253,6 +257,7 @@ class OcrMain(object):
         
         for i, line in enumerate(lines):
             # Draw box around entire LINE
+            print("{}   {}".format(i , line))
             points = line.replace("\n", '').split(',')
             left = int(points[0]) if int(points[6]) > int(points[0]) else int(points[6])
             right = int(points[2]) if int(points[4]) < int(points[2]) else int(points[4])
@@ -260,8 +265,8 @@ class OcrMain(object):
             bottom = int(points[5]) if int(points[7]) < int(points[5]) else int(points[7])
             height = bottom - top
             width = right - left
-            
-            c_img = save_img[top: int(top + height), left: int(left + width)]
+            #print("index= {:4d}    top={} bottom={} left={} right={}".format(i, top, bottom, left, right))
+            c_img = save_img[top: bottom, left: right]
             new_height = 32
             new_width = int(width * new_height / height)
             
@@ -304,15 +309,18 @@ class OcrMain(object):
         if len(results) > len(lines):
             results = results[0:len(lines)]
             
-        
+        total_socre= 0.0
         for line, result in zip(lines, results) :
             new_line = '{},{:.4f},{}\n'.format(line.replace("\n", ''), float(result[2]), result[1] )
+            total_socre += float(result[2])
             new_lines.append(new_line)
+        
+        mean_socre = total_socre/len(results)
         
         file_name_dest = os.path.join(self.output_dir, label_file.split('/')[-1].split('.')[0] + '.json' )
         converToTextract = ConverToTextract( file_name_dest, image_file, new_lines)
         converToTextract.convert()
-        print('【输出】生成json文件{}.   识别{}个文本'.format(file_name_dest, len(results)))
+        print('【输出】生成json文件{}.   识别{}个文本, 平均得分 {:.4f}'.format(file_name_dest, len(results), mean_socre))
         
 
     def main(self):

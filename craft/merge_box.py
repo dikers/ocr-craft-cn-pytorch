@@ -38,7 +38,8 @@ def _do_merge_inline(new_lines):
             'height': int(points[7]) - int(points[1]),
 
             'top': int(points[1]),
-            'bottom': int(points[7])
+            'bottom': int(points[7]),
+            'raw_line': line
         }
         box_list.append(box)
         box_map[_box_to_line(box)] = False
@@ -96,7 +97,7 @@ def _do_merge_inline(new_lines):
                 # print(' 合并  {} === {} '.format(box_to_line(box_list[i]), box_to_line(box_list[j])))
                 total_count += 1
         if not merge_flag:
-            new_box_lines.append(_box_to_line(box_list[i]))
+            new_box_lines.append(box_list[i]['raw_line'])
 
     #print("合并了 {}个 box".format(total_count))
     #print("总共 {}个 box".format(len(new_box_lines)))
