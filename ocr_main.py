@@ -257,7 +257,7 @@ class OcrMain(object):
         
         for i, line in enumerate(lines):
             # Draw box around entire LINE
-            print("{}   {}".format(i , line))
+            #print("{}   {}".format(i , line))
             points = line.replace("\n", '').split(',')
             left = int(points[0]) if int(points[6]) > int(points[0]) else int(points[6])
             right = int(points[2]) if int(points[4]) < int(points[2]) else int(points[4])

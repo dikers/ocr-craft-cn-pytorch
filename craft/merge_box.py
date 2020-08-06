@@ -1,14 +1,14 @@
 
 def _box_to_line(box):
     return '{},{},{},{},{},{},{},{}'.format(
-        box['left'],
-        box['top'],
-        box['right'],
-        box['top'],
-        box['right'],
-        box['bottom'],
-        box['left'],
-        box['bottom'],)
+        box['x0'],
+        box['y0'],
+        box['x1'],
+        box['y1'],
+        box['x2'],
+        box['y2'],
+        box['x3'],
+        box['y3'],)
 
 def _delete_row_in_list(new_lines, line):
 
@@ -39,6 +39,18 @@ def _do_merge_inline(new_lines):
 
             'top': int(points[1]),
             'bottom': int(points[7]),
+            'x0': int(points[0]),
+            'y0': int(points[1]),
+
+            'x1': int(points[2]),
+            'y1': int(points[3]),
+
+            'x2': int(points[4]),
+            'y2': int(points[5]),
+
+            'x3': int(points[6]),
+            'y3': int(points[7]),
+
             'raw_line': line
         }
         box_list.append(box)
@@ -61,30 +73,24 @@ def _do_merge_inline(new_lines):
             if box_map[_box_to_line(box_list[j])] or i == j:
                 continue
             if box_list[j]['width'] < 150 \
-                    and abs(box_list[j]['left'] - box_list[i]['right']) < 9 \
-                    and abs(box_list[j]['top'] - box_list[i]['top']) < 8 \
-                    and abs(box_list[j]['bottom'] - box_list[i]['bottom']) < 8:
+                    and abs(box_list[j]['x0'] - box_list[i]['x1']) < 9 \
+                    and abs(box_list[j]['y0'] - box_list[i]['y1']) < 9 \
+                    and abs(box_list[j]['y3'] - box_list[i]['y2']) < 9:
 
                 # 添加新的box ， 删除两个旧的box
 
-                top = box_list[i]['top']
-                if box_list[j]['top'] < box_list[i]['top']:
-                    top = box_list[j]['top']
-
-                bottom = box_list[i]['bottom']
-                if box_list[j]['bottom'] > box_list[i]['bottom']:
-                    bottom = box_list[j]['bottom']
-
-
                 new_box = {
-                    'left': box_list[i]['left'],
-                    'right': box_list[j]['right'],
+                    'x0': box_list[i]['x0'],
+                    'y0': box_list[i]['y0'],
 
-                    'width': box_list[j]['right'] - box_list[i]['left'],
-                    'height': bottom - top,
+                    'x1': box_list[j]['x1'],
+                    'y1': box_list[j]['y1'],
 
-                    'top': top,
-                    'bottom': bottom
+                    'x2': box_list[j]['x2'],
+                    'y2': box_list[j]['y2'],
+
+                    'x3': box_list[i]['x3'],
+                    'y3': box_list[i]['y3'],
                 }
 
                 box_map[_box_to_line(box_list[i])] = True
