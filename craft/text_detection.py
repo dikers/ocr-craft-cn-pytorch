@@ -149,4 +149,4 @@ def text_detection(args, net):
         except Exception:
             print("【Error】 图片[{}]  文本区域检测识别失败".format(image_path))
 
-    print("elapsed time : {}s".format(time.time() - t))
+    print("elapsed time : {:.5f}s  \n".format(time.time() - t))
