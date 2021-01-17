@@ -12,6 +12,13 @@ pip install -r requirements.txt -i https://mirrors.163.com/pypi/simple/  --defau
 
 sh ocr_main.sh
 
+
+pip install ipykernel
+python -m ipykernel install --name ocr
+
+#jupyter kernelspec remove kernelname
+#jupyter kernelspec list
+
 ```
 
 
